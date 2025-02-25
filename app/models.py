@@ -7,3 +7,8 @@ class CustomerBase(SQLModel):
 
 class Customer(CustomerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+
+class BankAccount(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    customer_id: int = Field(foreign_key="customer.id")
+    balance: float

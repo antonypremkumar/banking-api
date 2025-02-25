@@ -16,6 +16,7 @@ python -m pip install pytest
 ```
 
 # Create a database by running the following
+# This should be run only once!!
 ```
 python app/database.py
 ```
@@ -29,3 +30,8 @@ python app/main.py
 ```
 http://127.0.0.1:8000/docs
 ```
+
+# To visualize the databank
+
+- Either use DBBrowser to open the bank.db file or
+- use vscode extension SQLite Viewer
