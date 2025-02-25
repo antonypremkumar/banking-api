@@ -42,3 +42,11 @@ http://127.0.0.1:8000/docs
 - Security
 - Group validation to one location
 - API layer classes and DB layer classes for fine graining
+
+# Before testing
+
+- Delete database bank.db
+- Run the follwing
+```
+python app/database.py
+```
