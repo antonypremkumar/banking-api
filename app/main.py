@@ -48,9 +48,9 @@ async def get_all_customers():
     with Session(engine) as session:
         statement=select(Customer)
         result=session.exec(statement)
-        all_categories=result.all()
+        all_customers=result.all()
         # error handling could be done here
-    return all_categories
+    return all_customers
 
 # add an account to a customer
 @app.post('/account/{customer_id}', status_code=status.HTTP_201_CREATED)
@@ -64,6 +64,29 @@ async def add_an_account(customer_id: int):
         session.commit()
         session.refresh(new_account)
     return {"message": f"Added an account successfully to {customer_id}"}
+
+# get balance
+@app.get('/balance/{account_id}', response_model=int)
+async def get_balance(account_id: int):
+    with Session(engine) as session:
+        account = session.get(BankAccount, account_id)
+        if not account:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
+    return account.balance
+
+# get balances
+@app.get('/balances/{customer_id}', response_model=List[BankAccount])
+async def get_balance(customer_id: int):
+    with Session(engine) as session:
+        # check if customer exists
+        customer = session.get(Customer, customer_id)
+        if not customer:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found")
+
+        statement = select(BankAccount).where(BankAccount.customer_id == customer_id)
+        result=session.exec(statement)
+        all_accounts=result.all()
+    return all_accounts
 
 if __name__ == "__main__":
     uvicorn.run(app, host='127.0.0.1', port=8000)
