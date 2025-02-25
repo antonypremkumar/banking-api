@@ -14,3 +14,8 @@ python -m pip install fastapi[all]
 python -m pip install sqlmodel
 python -m pip install pytest
 ```
+
+# Create a database by running the following
+```
+python app/database.py
+```
