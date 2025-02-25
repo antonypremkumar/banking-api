@@ -8,6 +8,7 @@ import uvicorn
 
 from os import environ
 from models import CustomerBase, Customer
+from typing import List
 
 app = FastAPI()
 session = Session(bind=engine)
@@ -40,6 +41,16 @@ async def add_a_customer(customer: CustomerBase):
         session.commit()
         session.refresh(new_customer)
     return new_customer
+
+# get all customers
+@app.get('/customer', response_model=List[Customer])
+async def get_all_customers():
+    with Session(engine) as session:
+        statement=select(Customer)
+        result=session.exec(statement)
+        all_categories=result.all()
+        # error handling could be done here
+    return all_categories
 
 if __name__ == "__main__":
     uvicorn.run(app, host='127.0.0.1', port=8000)
