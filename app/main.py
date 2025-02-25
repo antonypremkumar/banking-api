@@ -1,12 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.responses import HTMLResponse
+from fastapi.exceptions import HTTPException
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 from database import engine
-
 import uvicorn
 
 from os import environ
+from models import CustomerBase, Customer
 
 app = FastAPI()
 session = Session(bind=engine)
@@ -26,6 +27,19 @@ def info():
         'version': "0.1.0",
         'user': environ['USER']
     }
+
+# add a customer
+@app.post('/customer', status_code=status.HTTP_201_CREATED)
+async def add_a_customer(customer: CustomerBase):
+    new_customer = Customer(name=customer.name)
+    with Session(engine) as session:
+        statement = select(Customer).where(Customer.name == customer.name)
+        if session.exec(statement).one_or_none():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="customer name already in use")
+        session.add(new_customer)
+        session.commit()
+        session.refresh(new_customer)
+    return new_customer
 
 if __name__ == "__main__":
     uvicorn.run(app, host='127.0.0.1', port=8000)
