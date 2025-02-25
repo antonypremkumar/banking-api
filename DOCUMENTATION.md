@@ -16,7 +16,8 @@ python -m pip install pytest
 ```
 
 # Create a database by running the following
-# This should be run only once!!
+This should be run only once!!
+Before running delete the database to avoid overwriting
 ```
 python app/database.py
 ```

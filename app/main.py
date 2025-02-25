@@ -7,7 +7,7 @@ from database import engine, initial_deposit
 import uvicorn
 
 from os import environ
-from models import CustomerBase, Customer, BankAccount
+from models import CustomerBase, Customer, BankAccount, Transfer
 from typing import List
 
 app = FastAPI()
@@ -87,6 +87,39 @@ async def get_balance(customer_id: int):
         result=session.exec(statement)
         all_accounts=result.all()
     return all_accounts
+
+# transfer a specific account between accounts
+@app.post("/transfer/{from_account_id}/{to_account_id}/{amount}") # A class for a successful response could be added
+def transfer_funds(from_account_id: int, to_account_id: int, amount: float):
+    if amount <= 0:
+        raise HTTPException(status_code=400, detail="Transfer amount must be positive")
+    
+    with Session(engine) as session:
+        from_account = session.get(BankAccount, from_account_id)
+        to_account = session.get(BankAccount, to_account_id)
+    
+        if not from_account or not to_account:
+            raise HTTPException(status_code=404, detail="One or both accounts not found")
+    
+        if from_account.balance < amount:
+            raise HTTPException(status_code=400, detail="Insufficient funds")
+    
+        from_account.balance -= amount
+        to_account.balance += amount
+
+        session.add(from_account)
+        session.commit()
+        session.refresh(from_account)
+    
+        session.add(to_account)
+        session.commit()
+        session.refresh(to_account)
+    
+        new_transfer = Transfer(from_account_id=from_account_id, to_account_id=to_account_id, amount=amount)
+        session.add(new_transfer)
+        session.commit()
+        session.refresh(new_transfer)
+    return {"message": "Transfer successful"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host='127.0.0.1', port=8000)
