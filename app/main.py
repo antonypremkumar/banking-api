@@ -76,7 +76,7 @@ async def get_balance(account_id: int):
 
 # get balances
 @app.get('/balances/{customer_id}', response_model=List[BankAccount])
-async def get_balance(customer_id: int):
+async def get_balances(customer_id: int):
     with Session(engine) as session:
         # check if customer exists
         customer = session.get(Customer, customer_id)
@@ -120,6 +120,19 @@ def transfer_funds(from_account_id: int, to_account_id: int, amount: float):
         session.commit()
         session.refresh(new_transfer)
     return {"message": "Transfer successful"}
+
+# account statement of records
+@app.get("/account/{account_id}/transfers", response_model=List[Transfer])
+def get_transfer_history(account_id: int):
+    with Session(engine) as session:
+        # check if account exists
+        account = session.get(BankAccount, account_id)
+        if not account:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
+
+        statement = select(Transfer).where((Transfer.from_account_id == account_id) | (Transfer.to_account_id == account_id))
+        transfers = session.exec(statement).all()
+    return transfers
 
 if __name__ == "__main__":
     uvicorn.run(app, host='127.0.0.1', port=8000)
