@@ -36,3 +36,9 @@ http://127.0.0.1:8000/docs
 
 - Either use DBBrowser to open the bank.db file or
 - use vscode extension SQLite Viewer
+
+# Things to improve
+
+- Security
+- Group validation to one location
+- API layer classes and DB layer classes for fine graining
