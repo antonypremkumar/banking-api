@@ -19,3 +19,13 @@ python -m pip install pytest
 ```
 python app/database.py
 ```
+
+# Run the following to start the api server
+```
+python app/main.py
+```
+
+# Open the following in the browser to read the documentation and interactively give API requests
+```
+http://127.0.0.1:8000/docs
+```
